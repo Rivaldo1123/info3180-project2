@@ -2,9 +2,9 @@
 
 const register = ('register', {
     name: 'register',
-    template: 
+    template:
     /*html*/
-    `
+        `
     <div>
         <h1 class="page-header"> 
             Add New User
@@ -90,11 +90,12 @@ const register = ('register', {
                 .then(function(jsonResponse) {
                     // display a success message
                     self.hasMessage = true;
-                    if (jsonResponse.hasOwnProperty("errors")){
-                        self.hasError=true;
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.hasError = true;
                         self.message = jsonResponse.errors;
-                    }else if(jsonResponse.hasOwnProperty("message")){
+                    } else if (jsonResponse.hasOwnProperty("message")) {
                         self.message = jsonResponse.message;
+                        console.log(jsonResponse);
                         router.push("/login");
                     }
                 })
@@ -107,9 +108,9 @@ const register = ('register', {
 
 const login = ('login', {
     name: 'login',
-    template: 
+    template:
     /*html*/
-    `
+        `
         <div class="login-form center-block">
             <h2>Please Log in</h2>
             <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
@@ -140,13 +141,13 @@ const login = ('login', {
     </div>
         </div>    
     `,
-    data(){
+    data() {
         return {
-          hasMessage: false,
-          hasError: false,
-          message: ""
+            hasMessage: false,
+            hasError: false,
+            message: ""
         }
-      },
+    },
     methods: {
         login: function() {
             let self = this;
@@ -193,8 +194,7 @@ const app = Vue.createApp({
 
 app.component('app-header', {
     name: 'AppHeader',
-    template: 
-    `
+    template: `
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <a class="navbar-brand" href="#">Lab 7</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -217,8 +217,7 @@ app.component('app-header', {
 
 app.component('app-footer', {
     name: 'AppFooter',
-    template: 
-    `
+    template: `
     <footer>
         <div class="container">
             <p>Copyright &copy; {{ year }} Flask Inc.</p>
@@ -234,8 +233,7 @@ app.component('app-footer', {
 
 const Home = {
     name: 'Home',
-    template: 
-    `
+    template: `
     <div class="jumbotron">
         <h1>Lab 7</h1>
         <p class="lead">In this lab we will demonstrate VueJS working with Forms and Form Validation from Flask-WTF.</p>
@@ -248,8 +246,7 @@ const Home = {
 
 const NotFound = {
     name: 'NotFound',
-    template: 
-    `
+    template: `
     <div>
         <h1>404 - Not Found</h1>
     </div>
