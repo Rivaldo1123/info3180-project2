@@ -49,14 +49,17 @@ def register():
             biography = registerUser.biography.data
             username = loginForm.username.data
             password = loginForm.password.data
-            
             user = UserProfile(username, password,name,email,location,biography,filename)
-            db.session.add(user)
-            db.session.commit()
-            return jsonify({ "message":"Congratulations.... Your file was successfully uploaded",
-                    "user":user })
+            try:
+                db.session.add(user)
+                db.session.commit()
+                return jsonify(message = "Congratulations.... Your file was successfully uploaded")
+            except Exception as exc:
+                db.session.rollback()
+                print (exc)
+                return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
         else:
-            return jsonify({"errors": [form_errors(registerUser)]})
+            return jsonify(errors = [form_errors(registerUser)])
         
 def form_errors(form):
     error_messages = []

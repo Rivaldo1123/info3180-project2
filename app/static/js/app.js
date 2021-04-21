@@ -54,6 +54,7 @@ const register = ('register', {
     },
     methods: {
         register: function() {
+            let self = this;
             let register = document.getElementById('register');
             let form_data = new FormData(register);
 
