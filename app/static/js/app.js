@@ -2,7 +2,9 @@
 
 const register = ('register', {
     name: 'register',
-    template: `
+    template: 
+    /*html*/
+    `
     <div>
         <h1 class="page-header"> 
             Add New User
@@ -44,13 +46,29 @@ const register = ('register', {
                 </div>
             </div>
         </form>
+        <!--Displays Messages-->
+        <div v-if='hasMessage' style="margin-top: 5%;">
+            <div v-if="!hasError ">
+                <div class="alert alert-success" >
+                        {{ message }}
+                </div>
+            </div>
+            <div v-else >
+                <ul class="alert alert-danger">
+                    <li v-for="error in message">
+                        {{ error }}
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
     `,
     data() {
         return {
             message: [],
-            error: []
-        };
+            hasError: false,
+            hasMessage: false
+        }
     },
     methods: {
         register: function() {
@@ -71,9 +89,14 @@ const register = ('register', {
                 })
                 .then(function(jsonResponse) {
                     // display a success message
-                    console.log(jsonResponse);
-                    self.message = jsonResponse.message;
-                    self.error = jsonResponse.error;
+                    self.hasMessage = true;
+                    if (jsonResponse.hasOwnProperty("errors")){
+                        self.hasError=true;
+                        self.message = jsonResponse.errors;
+                    }else if(jsonResponse.hasOwnProperty("message")){
+                        self.message = jsonResponse.message;
+                        router.push("/login");
+                    }
                 })
                 .catch(function(error) {
                     console.log(error);
@@ -84,7 +107,9 @@ const register = ('register', {
 
 const login = ('login', {
     name: 'login',
-    template: `
+    template: 
+    /*html*/
+    `
         <div class="login-form center-block">
             <h2>Please Log in</h2>
             <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
@@ -98,10 +123,33 @@ const login = ('login', {
             </div>
             <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
             </form>
+                    <!--Displays Messages-->
+        <div v-if='hasMessage' style="margin-top: 5%;">
+        <div v-if="!hasError ">
+            <div class="alert alert-success" >
+                    {{ message }}
+            </div>
+        </div>
+        <div v-else >
+            <ul class="alert alert-danger">
+                <li v-for="error in message">
+                    {{ error }}
+                </li>
+            </ul>
+        </div>
+    </div>
         </div>    
     `,
+    data(){
+        return {
+          hasMessage: false,
+          hasError: false,
+          message: ""
+        }
+      },
     methods: {
         login: function() {
+            let self = this;
             let login = document.getElementById('login');
             let form_data = new FormData(login);
 
@@ -119,6 +167,7 @@ const login = ('login', {
                 .then(function(jsonResponse) {
                     // display a success message
                     console.log(jsonResponse);
+                    self.hasMessage = true;
                     self.message = jsonResponse.message;
                     self.error = jsonResponse.error;
                 })
@@ -144,7 +193,8 @@ const app = Vue.createApp({
 
 app.component('app-header', {
     name: 'AppHeader',
-    template: `
+    template: 
+    `
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
       <a class="navbar-brand" href="#">Lab 7</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,7 +217,8 @@ app.component('app-header', {
 
 app.component('app-footer', {
     name: 'AppFooter',
-    template: `
+    template: 
+    `
     <footer>
         <div class="container">
             <p>Copyright &copy; {{ year }} Flask Inc.</p>
@@ -183,7 +234,8 @@ app.component('app-footer', {
 
 const Home = {
     name: 'Home',
-    template: `
+    template: 
+    `
     <div class="jumbotron">
         <h1>Lab 7</h1>
         <p class="lead">In this lab we will demonstrate VueJS working with Forms and Form Validation from Flask-WTF.</p>
@@ -196,7 +248,8 @@ const Home = {
 
 const NotFound = {
     name: 'NotFound',
-    template: `
+    template: 
+    `
     <div>
         <h1>404 - Not Found</h1>
     </div>
@@ -213,7 +266,7 @@ const routes = [
     { path: "/register/", component: register },
     { path: "/login/", component: login },
     // This is a catch all route in case none of the above matches
-    { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFound }
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
 
 const router = VueRouter.createRouter({

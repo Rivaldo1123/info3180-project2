@@ -53,8 +53,8 @@ def register():
             try:
                 db.session.add(user)
                 db.session.commit()
-                return jsonify(message = "Congratulations.... Your file was successfully uploaded")
-            except Exception as exc:
+                return jsonify(message = "Congratulations.... User sucsessfully added")
+            except Exception as exc: 
                 db.session.rollback()
                 print (exc)
                 return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
