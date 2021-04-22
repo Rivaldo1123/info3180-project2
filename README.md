@@ -1,4 +1,4 @@
-# Project 2 Starter Code
+# Project 2 Code
 
 Starter code for Project 2
 
