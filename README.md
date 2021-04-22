@@ -1,6 +1,6 @@
-# Lab 5 Starter Code
+# Project 2 Starter Code
 
-Starter code for Lab 5
+Starter code for Project 2
 
 To begin using this app you can do the following:
 
