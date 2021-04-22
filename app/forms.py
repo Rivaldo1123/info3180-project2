@@ -8,6 +8,8 @@ class RegisterUser(FlaskForm):
     email = StringField('Email', validators=[InputRequired(),Email(message='Please enter a valid email address')])
     location = StringField('Location', validators=[InputRequired()])
     biography = TextAreaField('Biography', validators=[InputRequired()])
+    username = StringField('Username', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
     photo = FileField('Photo', validators=[FileRequired(),FileAllowed(['jpg', 'jpeg', 'png'],'Images Only!')])
     
 class LoginForm(FlaskForm):

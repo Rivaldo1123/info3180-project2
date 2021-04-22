@@ -1,5 +1,4 @@
 from . import db
-import datetime
 from werkzeug.security import generate_password_hash
 
 
@@ -13,14 +12,14 @@ class UserProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(255))
-    name = db.Column(db.String(80))
-    email = db.Column(db.String(80))
-    location = db.Column(db.String(80))
-    biography = db.Column(db.String(255))
-    photo = db.Column(db.String(80))
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(120), unique=True)
+    location = db.Column(db.String(100))
+    biography = db.Column(db.Text)
+    photo = db.Column(db.Text)
     date_joined = db.Column(db.DateTime)
         
-    def __init__(self,username,password,name,email,location,biography,photo):
+    def __init__(self,username,password,name,email,location,biography,photo,date_joined):
         self.username = username
         self.password = generate_password_hash(password, method= 'pbkdf2:sha256')
         self.name = name
@@ -28,7 +27,7 @@ class UserProfile(db.Model):
         self.location = location
         self.biography = biography
         self.photo = photo
-        self.date_joined = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.date_joined = date_joined
 
     def is_authenticated(self):
         return True

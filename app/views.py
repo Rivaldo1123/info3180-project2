@@ -5,7 +5,7 @@ Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
 
-import os
+import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
@@ -35,7 +35,6 @@ def index(path):
 def register():
     '''Accepts user information and saves it to the database'''
     registerUser = RegisterUser()
-    loginForm = LoginForm()
     
     if request.method == "POST":
         if registerUser.validate_on_submit():
@@ -47,33 +46,33 @@ def register():
             email = registerUser.email.data
             location = registerUser.location.data
             biography = registerUser.biography.data
-            username = loginForm.username.data
-            password = loginForm.password.data
-            user = UserProfile(username, password,name,email,location,biography,filename)
+            username = registerUser.username.data
+            password = registerUser.password.data
+            date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            username2 = UserProfile.query.filter_by(username=username).first()
+            email2 =UserProfile.query.filter_by(email=email).first()
+            
+            user = UserProfile(username, password,name,email,location,biography,filename,date)
             try:
-                db.session.add(user)
-                db.session.commit()
-                return jsonify(message = "Congratulations.... User sucsessfully added")
+                if username2 is None and email2 is None:
+                    db.session.add(user)
+                    db.session.commit()
+                    return jsonify(message = "Congratulations.... User successfully added")
+                while (username2 is not None or email2 is not None or username2 is not None and email2 is not None):
+                    if username2 is not None and email2 is not None:
+                        return jsonify(errors = ["Email Taken", "Username Taken"])
+                    elif email2 is not None:
+                        return jsonify(errors = ["Email Taken"])
+                    else:
+                        return jsonify(errors = ["Username Taken"])
             except Exception as exc: 
                 db.session.rollback()
                 print (exc)
                 return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
         else:
-            return jsonify(errors = [form_errors(registerUser)])
+            return jsonify(errors = form_errors(registerUser))
         
-def form_errors(form):
-    error_messages = []
-    """Collects form errors"""
-    for field, errors in form.errors.items():
-        for error in errors:
-            message = u"Error in the %s field - %s" % (
-                    getattr(form, field).label.text,
-                    error
-                )
-            error_messages.append(message)
-
-    return error_messages
-
 @app.route("/api/auth/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -106,6 +105,20 @@ def login():
                 return redirect(url_for("secure_page"))  # they should be redirected to a secure-page route instead
             flash('Incorrect Username or Password','danger')
     return render_template("login.html", form=form)
+
+        
+def form_errors(form):
+    error_messages = []
+    """Collects form errors"""
+    for field, errors in form.errors.items():
+        for error in errors:
+            message = u"Error in the %s field - %s" % (
+                    getattr(form, field).label.text,
+                    error
+                )
+            error_messages.append(message)
+
+    return error_messages
 
 @app.route("/logout")
 @login_required

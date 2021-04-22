@@ -93,10 +93,12 @@ const register = ('register', {
                     if (jsonResponse.hasOwnProperty("errors")) {
                         self.hasError = true;
                         self.message = jsonResponse.errors;
+                        router.push("/register");
                     } else if (jsonResponse.hasOwnProperty("message")) {
                         self.message = jsonResponse.message;
+                        localStorage.message = self.message;
                         console.log(jsonResponse);
-                        router.push("/login");
+                        router.push('/login');
                     }
                 })
                 .catch(function(error) {
@@ -143,9 +145,9 @@ const login = ('login', {
     `,
     data() {
         return {
-            hasMessage: false,
+            hasMessage: true,
             hasError: false,
-            message: ""
+            message: localStorage.getItem('message')
         }
     },
     methods: {
