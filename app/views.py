@@ -58,7 +58,7 @@ def register():
                 if username2 is None and email2 is None:
                     db.session.add(user)
                     db.session.commit()
-                    return jsonify(message = "Congratulations.... User successfully added")
+                    return jsonify(message = "Congratulations.... User successfully added"), 201
                 while (username2 is not None or email2 is not None or username2 is not None and email2 is not None):
                     if username2 is not None and email2 is not None:
                         return jsonify(errors = ["Email Taken", "Username Taken"])
@@ -79,32 +79,29 @@ def login():
         return redirect(url_for('secure_page'))
 
     form = LoginForm()
-    if request.method == "POST" and form.validate_on_submit():
+    if request.method == "POST":
+        if form.validate_on_submit():
         # change this to actually validate the entire form submission
         # and not just one field
-        username = form.username.data
-        password = form.password.data
-        if username:
-            # Get the username and password values from the form.
-            user = UserProfile.query.filter_by(username=username).first()
+            username = form.username.data
+            password = form.password.data
+            try:
+                # Get the username and password values from the form.
+                user = UserProfile.query.filter_by(username=username).first()
 
-            # using your model, query database for a user based on the username
-            # and password submitted. Remember you need to compare the password hash.
-            # You will need to import the appropriate function to do so.
-            # Then store the result of that query to a `user` variable so it can be
-            # passed to the login_user() method below.
-            if user is not None and check_password_hash(user.password,password):
-            # get user id, load into session
-                remember_me = False
-                if 'remember_me' in request.form:
-                    remember_me = True
-
-                login_user(user)
-            # remember to flash a message to the user
-                flash('Logged in successfully.','success')
-                return redirect(url_for("secure_page"))  # they should be redirected to a secure-page route instead
-            flash('Incorrect Username or Password','danger')
-    return render_template("login.html", form=form)
+                # using your model, query database for a user based on the username
+                # and password submitted. Remember you need to compare the password hash.
+                # You will need to import the appropriate function to do so.
+                # Then store the result of that query to a `user` variable so it can be
+                # passed to the login_user() method below.
+                if user is not None and check_password_hash(user.password,password):
+                    return jsonify(message='Logged in successfully.')
+            except Exception as exc: 
+                db.session.rollback()
+                print (exc)
+                return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
+        else:
+            return jsonify(errors = form_errors(form))
 
         
 def form_errors(form):
@@ -112,7 +109,7 @@ def form_errors(form):
     """Collects form errors"""
     for field, errors in form.errors.items():
         for error in errors:
-            message = u"Error in the %s field - %s" % (
+            message = "Error in the %s field - %s" % (
                     getattr(form, field).label.text,
                     error
                 )

@@ -41,31 +41,30 @@ const register = ('register', {
                         <input type='file' name = 'photo'> <br>
                     </div>
                 </div>
+                <!--Displays Messages-->
+                <div v-if='hasMessage'>
+                    <div v-if="!hasError ">
+                        <div class="alert alert-success" >
+                                {{ message }}
+                        </div>
+                    </div>
+                    <div v-else >
+                        <ul class="alert alert-danger">
+                            <li v-for="error in message">
+                                {{ error }}
+                            </li>
+                        </ul>
+                </div>
+            </div>
                 <div class="col-12">
                     <button class='btn bg-primary' type='submit'> Submit </button>
                 </div>
             </div>
         </form>
-        <!--Displays Messages-->
-        <div v-if='hasMessage' style="margin-top: 5%;">
-            <div v-if="!hasError ">
-                <div class="alert alert-success" >
-                        {{ message }}
-                </div>
-            </div>
-            <div v-else >
-                <ul class="alert alert-danger">
-                    <li v-for="error in message">
-                        {{ error }}
-                    </li>
-                </ul>
-            </div>
-        </div>
     </div>
     `,
     data() {
         return {
-            message: [],
             hasError: false,
             hasMessage: false
         }
@@ -93,12 +92,12 @@ const register = ('register', {
                     if (jsonResponse.hasOwnProperty("errors")) {
                         self.hasError = true;
                         self.message = jsonResponse.errors;
-                        router.push("/register");
+                        console.log(jsonResponse.errors);
                     } else if (jsonResponse.hasOwnProperty("message")) {
+                        self.hasError = false;
                         self.message = jsonResponse.message;
-                        localStorage.message = self.message;
-                        console.log(jsonResponse);
-                        router.push('/login');
+                        console.log(jsonResponse.message);
+                        setTimeout(function() { router.push('/login'); }, 2000);
                     }
                 })
                 .catch(function(error) {
@@ -126,28 +125,27 @@ const login = ('login', {
             </div>
             <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
             </form>
-                    <!--Displays Messages-->
+        <!--Displays Messages-->
         <div v-if='hasMessage' style="margin-top: 5%;">
-        <div v-if="!hasError ">
-            <div class="alert alert-success" >
-                    {{ message }}
+            <div v-if="!hasError ">
+                <div class="alert alert-success" >
+                        {{ message }}
+                </div>
+            </div>
+            <div v-else >
+                <ul class="alert alert-danger">
+                    <li v-for="error in message">
+                        {{ error }}
+                    </li>
+                </ul>
             </div>
         </div>
-        <div v-else >
-            <ul class="alert alert-danger">
-                <li v-for="error in message">
-                    {{ error }}
-                </li>
-            </ul>
-        </div>
-    </div>
         </div>    
     `,
     data() {
         return {
-            hasMessage: true,
-            hasError: false,
-            message: localStorage.getItem('message')
+            hasMessage: false,
+            hasError: false
         }
     },
     methods: {
@@ -169,10 +167,17 @@ const login = ('login', {
                 })
                 .then(function(jsonResponse) {
                     // display a success message
-                    console.log(jsonResponse);
                     self.hasMessage = true;
-                    self.message = jsonResponse.message;
-                    self.error = jsonResponse.error;
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.hasError = true;
+                        self.message = jsonResponse.errors;
+                        console.log(jsonResponse.errors);
+                    } else if (jsonResponse.hasOwnProperty("message")) {
+                        self.hasError = false;
+                        self.message = jsonResponse.message;
+                        console.log(jsonResponse.message);
+                        setTimeout(function() { router.push('/login'); }, 1500);
+                    }
                 })
                 .catch(function(error) {
                     console.log(error);
