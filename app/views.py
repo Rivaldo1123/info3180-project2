@@ -13,6 +13,7 @@ from .forms import RegisterUser, LoginForm
 from .models import UserProfile
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
+import jwt
 
 
 ###
@@ -73,11 +74,8 @@ def register():
         else:
             return jsonify(errors = form_errors(registerUser))
         
-@app.route("/api/auth/login", methods=["GET", "POST"])
+@app.route("/api/auth/login", methods=["POST"])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('secure_page'))
-
     form = LoginForm()
     if request.method == "POST":
         if form.validate_on_submit():
@@ -94,15 +92,19 @@ def login():
                 # You will need to import the appropriate function to do so.
                 # Then store the result of that query to a `user` variable so it can be
                 # passed to the login_user() method below.
-                if user is not None and check_password_hash(user.password,password):
-                    return jsonify(message='Logged in successfully.')
+                if user != None and check_password_hash(user.password,password):
+                    #prepare user related info
+                    payload = {'user': user.username}
+                    jwt_token = str(jwt.encode(payload,app.config['SECRET_KEY'],algorithm = "HS256"))
+                    response = {'message': 'User successfully logged in','token':jwt_token, "user_id": user.id}
+                    return jsonify(response)
+                #If username or password is incorrect
+                return jsonify(errors="Username or password is incorrect")
             except Exception as exc: 
-                db.session.rollback()
                 print (exc)
-                return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
+                return jsonify(errors=["Some Internal Error Occurred Here, Please Try Again"])
         else:
             return jsonify(errors = form_errors(form))
-
         
 def form_errors(form):
     error_messages = []
@@ -117,18 +119,19 @@ def form_errors(form):
 
     return error_messages
 
-@app.route("/logout")
+@app.route('/api/auth/logout', methods = ['GET'])
 @login_required
 def logout():
-    logout_user()
-    flash('You have been logged out.', 'danger')
-    return redirect(url_for('home'))
+    return jsonify(message= "User successfully logged out.")
+
+
 
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 @login_manager.user_loader
 def load_user(id):
     return UserProfile.query.get(int(id))
+
 
 ###
 # The functions below should be applicable to all Flask apps.

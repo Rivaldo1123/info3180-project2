@@ -158,7 +158,7 @@ const login = ('login', {
                     method: 'POST',
                     body: form_data,
                     headers: {
-                        'X-CSRFToken': token
+                    'X-CSRFToken': token
                     },
                     credentials: 'same-origin'
                 })
@@ -166,17 +166,23 @@ const login = ('login', {
                     return response.json();
                 })
                 .then(function(jsonResponse) {
-                    // display a success message
+                    // display messages
                     self.hasMessage = true;
+                    //Error Message
                     if (jsonResponse.hasOwnProperty("errors")) {
                         self.hasError = true;
                         self.message = jsonResponse.errors;
                         console.log(jsonResponse.errors);
-                    } else if (jsonResponse.hasOwnProperty("message")) {
+                    //Success Message
+                    } else if (jsonResponse.hasOwnProperty("message") && jsonResponse.hasOwnProperty("token")){
                         self.hasError = false;
                         self.message = jsonResponse.message;
                         console.log(jsonResponse.message);
-                        setTimeout(function() { router.push('/login'); }, 1500);
+                        //Stores information on current user
+                        curuser={"token":jsonResponse.token, id: jsonResponse.user_id};
+                        localStorage.current_user = JSON.stringify(curuser);
+                        router.go();
+                        setTimeout(function() { router.push('/'); }, 2000);//Modify to redirect to where you need it to go after log in
                     }
                 })
                 .catch(function(error) {
@@ -185,6 +191,32 @@ const login = ('login', {
         }
     }
 });
+
+const Logout = ("logout", {
+    name: 'logout',
+    template: 
+    /*html*/
+    `
+    <div>
+    </div>`,
+    created: function(){
+      const self = this;
+      
+      fetch("api/auth/logout", {
+        method: "GET"
+      }).then(function(response){
+        return response.json();
+      }).then(function(jsonResponse){
+        //Remove current user information
+        localStorage.removeItem("current_user");
+        router.go();
+        router.push("/");
+      }).catch(function(error){
+        console.log(error);
+      });
+    }
+  });
+
 
 // Instantiate our main Vue Instance
 const app = Vue.createApp({
@@ -238,7 +270,7 @@ app.component('app-footer', {
     }
 });
 
-const Home = {
+const Home = ("Home",{
     name: 'Home',
     template: `
     <div class="jumbotron">
@@ -249,7 +281,7 @@ const Home = {
     data() {
         return {}
     }
-};
+});
 
 const NotFound = {
     name: 'NotFound',
