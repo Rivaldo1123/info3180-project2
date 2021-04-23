@@ -122,6 +122,7 @@ def form_errors(form):
 @app.route('/api/auth/logout', methods = ['GET'])
 @login_required
 def logout():
+    logout_user()
     return jsonify(message= "User successfully logged out.")
 
 
