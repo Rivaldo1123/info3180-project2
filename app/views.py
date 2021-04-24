@@ -13,7 +13,7 @@ from .forms import RegisterUser, LoginForm
 from .models import UserProfile
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-from flask_jwt import jwt
+import jwt
 
 
 ###
@@ -121,6 +121,7 @@ def form_errors(form):
 
 @app.route('/api/auth/logout', methods = ['GET'])
 def logout():
+    logout_user()
     return jsonify(message= "User successfully logged out.")
 
 

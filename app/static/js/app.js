@@ -232,7 +232,9 @@ const app = Vue.createApp({
 
 app.component('app-header', {
     name: 'AppHeader',
-    template: `
+    template: 
+    /*html*/
+    `
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
             <a class="navbar-brand" href="#">Lab 7</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -265,7 +267,7 @@ app.component('app-header', {
     `,
     data: function() {
         return {
-            auth: localStorage.hasOwnProperty("current_user")
+            auth: localStorage.current_user.hasOwnProperty("current_user")
         };
     }
 });
