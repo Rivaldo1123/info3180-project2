@@ -13,7 +13,7 @@ from .forms import RegisterUser, LoginForm
 from .models import UserProfile
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-import jwt
+from flask_jwt import jwt
 
 
 ###
@@ -99,7 +99,7 @@ def login():
                     response = {'message': 'User successfully logged in','token':jwt_token, "user_id": user.id}
                     return jsonify(response)
                 #If username or password is incorrect
-                return jsonify(errors="Username or password is incorrect")
+                return jsonify(errors=["Username or password is incorrect"])
             except Exception as exc: 
                 print (exc)
                 return jsonify(errors=["Some Internal Error Occurred Here, Please Try Again"])
@@ -120,9 +120,7 @@ def form_errors(form):
     return error_messages
 
 @app.route('/api/auth/logout', methods = ['GET'])
-@login_required
 def logout():
-    logout_user()
     return jsonify(message= "User successfully logged out.")
 
 

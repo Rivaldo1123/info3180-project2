@@ -126,7 +126,7 @@ const login = ('login', {
             <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
             </form>
         <!--Displays Messages-->
-        <div v-if='hasMessage' style="margin-top: 5%;">
+        <div v-if='hasMessage'>
             <div v-if="!hasError ">
                 <div class="alert alert-success" >
                         {{ message }}
@@ -158,7 +158,7 @@ const login = ('login', {
                     method: 'POST',
                     body: form_data,
                     headers: {
-                    'X-CSRFToken': token
+                        'X-CSRFToken': token
                     },
                     credentials: 'same-origin'
                 })
@@ -173,16 +173,14 @@ const login = ('login', {
                         self.hasError = true;
                         self.message = jsonResponse.errors;
                         console.log(jsonResponse.errors);
-                    //Success Message
-                    } else if (jsonResponse.hasOwnProperty("message") && jsonResponse.hasOwnProperty("token")){
+                        //Success Message
+                    } else if (jsonResponse.hasOwnProperty("message") && jsonResponse.hasOwnProperty("token")) {
                         self.hasError = false;
                         self.message = jsonResponse.message;
-                        console.log(jsonResponse.message);
                         //Stores information on current user
-                        curuser={"token":jsonResponse.token, id: jsonResponse.user_id};
+                        curuser = { "token": jsonResponse.token, id: jsonResponse.user_id };
                         localStorage.current_user = JSON.stringify(curuser);
-                        router.go();
-                        setTimeout(function() { router.push('/'); }, 2000);//Modify to redirect to where you need it to go after log in
+                        setTimeout(function() { router.push('/'); }, 2000); //Modify to redirect to where you need it to go after log in
                     }
                 })
                 .catch(function(error) {
@@ -192,30 +190,30 @@ const login = ('login', {
     }
 });
 
-const Logout = ("logout", {
-    name: 'logout',
-    template: 
-    /*html*/
-    `
-    <div>
-    </div>`,
-    created: function(){
-      const self = this;
-      
-      fetch("api/auth/logout", {
-        method: "GET"
-      }).then(function(response){
-        return response.json();
-      }).then(function(jsonResponse){
-        //Remove current user information
-        localStorage.removeItem("current_user");
-        router.go();
-        router.push("/");
-      }).catch(function(error){
-        console.log(error);
-      });
-    }
-  });
+const logout = {
+    name: "Logout",
+    template: `
+  <div>
+  </div>`,
+    created: function() {
+        const self = this;
+
+        fetch("api/auth/logout", {
+                method: "GET",
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                localStorage.removeItem("current_user");
+                router.go();
+                router.push("/");
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    },
+};
 
 
 // Instantiate our main Vue Instance
@@ -227,31 +225,49 @@ const app = Vue.createApp({
     },
     components: {
         'register': register,
-        'login': login
+        'login': login,
+        'logout': logout
     }
 });
 
 app.component('app-header', {
     name: 'AppHeader',
     template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
-      <a class="navbar-brand" href="#">Lab 7</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+            <a class="navbar-brand" href="#">Lab 7</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
     
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
-          </li>
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/register/">Register </router-link>
-          </li>
-        </ul>
-      </div>
-    </nav>
-    `
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div v-if="auth">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
+                        </li>
+                        <li class="nav-item active">
+                            <router-link class="nav-link" to="/register/">Register </router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to="/logout/" class="nav-link">Logout</router-link>
+                        </li>
+                    </ul>
+                </div>
+                <div v-else>
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <router-link to="/login/" class="nav-link">Login</router-link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    `,
+    data: function() {
+        return {
+            auth: localStorage.hasOwnProperty("current_user")
+        };
+    }
 });
 
 app.component('app-footer', {
@@ -270,7 +286,7 @@ app.component('app-footer', {
     }
 });
 
-const Home = ("Home",{
+const Home = ("Home", {
     name: 'Home',
     template: `
     <div class="jumbotron">
@@ -301,6 +317,7 @@ const routes = [
     // Put other routes here
     { path: "/register/", component: register },
     { path: "/login/", component: login },
+    { path: "/logout/", component: logout },
     // This is a catch all route in case none of the above matches
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
