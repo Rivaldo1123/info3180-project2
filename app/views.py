@@ -119,9 +119,8 @@ def form_errors(form):
 
     return error_messages
 
-@app.route('/api/auth/logout', methods = ['GET'])
+@app.route('/api/auth/logout', methods = ['POST'])
 def logout():
-    logout_user()
     return jsonify(message= "User successfully logged out.")
 
 

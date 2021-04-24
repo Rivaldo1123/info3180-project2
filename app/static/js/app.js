@@ -193,26 +193,37 @@ const login = ('login', {
 const logout = {
     name: "Logout",
     template: `
-  <div>
+  <div style="margin-top: 10rem">
   </div>`,
     created: function() {
-        const self = this;
+        let self = this;
 
-        fetch("api/auth/logout", {
-                method: "GET",
+        fetch("/api/auth/logout", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
             })
             .then(function(response) {
                 return response.json();
             })
             .then(function(jsonResponse) {
+                hasMessage = true;
                 localStorage.removeItem("current_user");
-                router.go();
-                router.push("/");
+                self.message = jsonResponse.message;
+                router.push('/login');
+                console.log(jsonResponse.message);
             })
             .catch(function(error) {
                 console.log(error);
             });
     },
+    data() {
+        return {
+            hasMessage: false
+        }
+    }
 };
 
 
@@ -232,9 +243,9 @@ const app = Vue.createApp({
 
 app.component('app-header', {
     name: 'AppHeader',
-    template: 
+    template:
     /*html*/
-    `
+        `
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
             <a class="navbar-brand" href="#">Lab 7</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -242,32 +253,28 @@ app.component('app-header', {
             </button>
     
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <div v-if="auth">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item active">
-                            <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
-                        </li>
-                        <li class="nav-item active">
-                            <router-link class="nav-link" to="/register/">Register </router-link>
-                        </li>
-                        <li class="nav-item">
-                            <router-link to="/logout/" class="nav-link">Logout</router-link>
-                        </li>
-                    </ul>
-                </div>
-                <div v-else>
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item">
-                            <router-link to="/login/" class="nav-link">Login</router-link>
-                        </li>
-                    </ul>
-                </div>
+                <ul class="navbar-nav mr-auto" v-if="auth">
+                    <li class="nav-item">
+                        <router-link class="nav-link" to="/logout/">Logout</router-link>
+                    </li>
+                </ul>
+                <ul class="navbar-nav mr-auto" v-else>
+                    <li class="nav-item active">
+                        <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
+                    </li>
+                    <li class="nav-item active">
+                        <router-link class="nav-link" to="/register/">Register </router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/login/" class="nav-link">Login</router-link>
+                    </li>
+                </ul>
             </div>
         </nav>
     `,
     data: function() {
         return {
-            auth: localStorage.current_user.hasOwnProperty("current_user")
+            auth: localStorage.hasOwnProperty("current_user")
         };
     }
 });
